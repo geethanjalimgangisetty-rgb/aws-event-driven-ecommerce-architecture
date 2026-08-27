@@ -1,0 +1,31 @@
+{
+  "name": "aws-event-driven-ecommerce-architecture",
+  "version": "1.0.0",
+  "description": "This repository contains the architecture and infrastructure code for a scalable, event-driven e-commerce system built on AWS. Designed to handle high-throughput order processing and real-time inventory management, the system leverages asynchronous messaging to decouple microservices, improve fault tolerance, and optimize resource utilization.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/geethanjalimgangisetty-rgb/aws-event-driven-ecommerce-architecture.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/geethanjalimgangisetty-rgb/aws-event-driven-ecommerce-architecture/issues"
+  },
+  "homepage": "https://github.com/geethanjalimgangisetty-rgb/aws-event-driven-ecommerce-architecture#readme",
+  "devDependencies": {
+    "@types/node": "^26.4.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^7.0.2"
+  },
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.1119.0",
+    "@aws-sdk/client-eventbridge": "^3.1119.0",
+    "@aws-sdk/client-sqs": "^3.1119.0"
+  }
+}

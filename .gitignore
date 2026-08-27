@@ -1,0 +1,29 @@
+# Local Terraform execution cache & provider binaries
+.terraform/
+.terraform.lock.hcl
+
+# Local state files & state backups
+# (Never push these to Git once using an S3 remote backend!)
+*.tfstate
+*.tfstate.*
+crash.log
+
+# Secret / Variable files
+*.tfvars
+*.tfvars.json
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# Node modules / application build artifacts
+node_modules/
+dist/
+build/
+.env
+
+# OS / Editor generated files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
