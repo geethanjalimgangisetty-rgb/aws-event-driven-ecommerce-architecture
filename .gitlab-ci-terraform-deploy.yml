@@ -1,0 +1,112 @@
+/* 
+this is a GitHub Actions workflow file for deploying Terraform configurations for a payment processor application.
+  it will have four stages: secret_detection, terraform_validate, terraform_plan, and terraform_apply. The secret_detection stage will check for any secrets in the codebase, the terraform_validate stage will validate the Terraform configuration files, the terraform_plan stage will create an execution plan for the Terraform deployment, and the terraform_apply stage will apply the changes to the infrastructure. 
+*/
+
+name: payment-processor-terraform-deployment-pipeline
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'common-infrastructure-setup/**'    # pipeline is initiated for terraform code changes.
+  pull_request:
+    branches: [main]
+    paths:  
+      - 'common-infrastructure-setup/**'
+permissions:
+  contents: read      # grants the github runner to read the contents of the repository
+  id-token: write     # grants the github runner to request an OIDC token for authentication with AWS
+
+jobs:
+  secret_detection:
+    name: Secret Detection
+    runs-on: ubuntu-latest
+    steps:
+    # load the code from repository to the github runner
+      - name: Checkout code
+        uses: actions/checkout@v3  
+
+    # run gitleaks to detect secrets in the codebase
+      - name: Run Gitleaks for secret detection
+        uses: gitleaks/gitleaks-action@v2
+        env: 
+          GITHUB_TOKEN: ${secrets.GITHUB_TOKEN}
+  terraform_validate:
+ # perform terraform Init, validate and format checks in terraform code before creating the execution plan for the deployment.
+    name: Terraform Validate
+    needs: secret_detection
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.7.5  # Specify the desired version of Terraform
+
+      - name: Terraform Init
+        run: terraform init common-infrastructure-setup/
+
+      - name: Terraform Validate
+        run: terraform validate common-infrastructure-setup/
+
+      - name: terraform format
+        run: terraform fmt -recursive common-infrastructure-setup/
+
+  terraform_plan:
+    name: Terraform Plan
+    needs: terraform_validate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+    # authenticate the github runner with AWS using OIDC token and assume the role created for github actions in AWS account.
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v3
+        with:
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/${{ secrets.AWS_ROLE_NAME }} #todo
+          aws-region: var.aws_region
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.7.5
+
+      - name: Terraform Plan
+        run: terraform plan -out=tfplan
+       # Archive the plan file safely for the deploy stage
+      - name: Upload Plan Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: tf-plan-file
+          path: common-infrastructure-setup/tfplan
+
+  terraform_apply:
+    name: terraform_apply
+    needs: terraform_plan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v3
+        with:
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/${{ secrets.AWS_ROLE_NAME }} #todo
+          aws-region: var.aws_region
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.7.5
+
+      - name: Download Plan Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: tf-plan-file
+          path: common-infrastructure-setup/tfplan
+
+      - name: Terraform Apply
+        run: terraform apply -input=false tfplan
+
