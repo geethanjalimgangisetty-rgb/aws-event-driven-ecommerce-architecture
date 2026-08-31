@@ -1,7 +1,5 @@
-/* 
-this is a GitHub Actions workflow file for deploying Terraform configurations for a payment processor application.
-  it will have four stages: secret_detection, terraform_validate, terraform_plan, and terraform_apply. The secret_detection stage will check for any secrets in the codebase, the terraform_validate stage will validate the Terraform configuration files, the terraform_plan stage will create an execution plan for the Terraform deployment, and the terraform_apply stage will apply the changes to the infrastructure. 
-*/
+# this is a GitHub Actions workflow file for deploying Terraform configurations for a payment processor application.
+ # it will have four stages: secret_detection, terraform_validate, terraform_plan, and terraform_apply. The secret_detection stage will check for any secrets in the codebase, the terraform_validate stage will validate the Terraform configuration files, the terraform_plan stage will create an execution plan for the Terraform deployment, and the terraform_apply stage will apply the changes to the infrastructure. 
 
 name: payment-processor-terraform-deployment-pipeline
 on:
