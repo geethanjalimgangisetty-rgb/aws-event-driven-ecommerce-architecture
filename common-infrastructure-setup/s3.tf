@@ -15,6 +15,7 @@ module "s3" {
     }
     tags = {
         dataClass = "infrastructure-state"
+        managedBy = "terraform"
     }
 }
 

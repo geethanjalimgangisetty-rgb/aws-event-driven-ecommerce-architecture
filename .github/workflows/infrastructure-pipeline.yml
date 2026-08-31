@@ -47,13 +47,13 @@ jobs:
           terraform_version: 1.7.5  # Specify the desired version of Terraform
 
       - name: Terraform Init
-        run: terraform init common-infrastructure-setup/
+        run: terraform init 
 
       - name: Terraform Validate
-        run: terraform validate common-infrastructure-setup/
+        run: terraform validate 
 
       - name: terraform format
-        run: terraform fmt -recursive common-infrastructure-setup/
+        run: terraform fmt -recursive 
 
   terraform_plan:
     name: Terraform Plan
