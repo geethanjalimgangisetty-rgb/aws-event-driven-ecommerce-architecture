@@ -5,8 +5,14 @@
         description = "this will be the default deployment region in aws"
     }
 
-   variable "github_repo_name" {
+   variable "github_repo_name_immutable" {
     type = string
     description = "holds the repo name (temporary setup)"
     default = "geethanjalimgangisetty-rgb@320882002/aws-event-driven-ecommerce-architecture@1346136516"
+   }
+
+   variable "github_repo_name" {
+    type = string
+    description = "holds the repo name (temporary setup)"
+    default = "geethanjalimgangisetty-rgb/aws-event-driven-ecommerce-architecture"
    }
