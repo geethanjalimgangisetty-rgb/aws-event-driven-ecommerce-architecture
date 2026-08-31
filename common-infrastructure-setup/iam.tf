@@ -36,7 +36,7 @@ module "iam_role" {
   # Enforces GitHub OIDC Trust Policy construction
   enable_github_oidc     = true
   oidc_wildcard_subjects = ["repo:${var.github_repo_name}:*"]
-
+  role_name_use_prefix  = false #todo
   # Attach custom policy as a map
   policies = {
     github_runner_policy = module.iam_policy.arn
