@@ -1,6 +1,6 @@
 module "iam_policy" {
   source  = "terraform-aws-modules/iam/aws//modules/iam-policy"
-  version = "= 6.0"
+  version = "= 6.8.0"
   name        = "github_runner_access_policy"
   description = "custom policy for github runner to access the aws resource"
 
@@ -25,18 +25,15 @@ module "iam_policy" {
 # Role created to provide github runner to access aws for planning and deploying
 module "iam_role" {
   source  = "terraform-aws-modules/iam/aws//modules/iam-role"
-  version = "= 6.0"
+  version = "= 6.0.0"
   name = "github_runner_access_role"
   description = "This role is created for the github runner to access aws for deployment"
-  create_role = true
   enable_github_oidc = true
   oidc_wildcard_subjects = ["repo:${var.github_repo_name}:*"] #try to pass run time
   # Attach managed or custom policies
-  custom_role_policy_arns = [
-    module.iam_policy.arn
-  ]
-  depends_on = module.iam_policy
-
+  policies = {
+    github_runner_policy = module.iam_policy.arn
+  }
   tags = {
     dataClass = "infrastructure-pipeline"
   }

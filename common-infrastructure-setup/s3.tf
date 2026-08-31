@@ -18,4 +18,3 @@ module "s3" {
     }
 }
 
-#isn't server side encryption enabled by default"
