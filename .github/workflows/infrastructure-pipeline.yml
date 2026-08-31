@@ -34,6 +34,9 @@ jobs:
     name: Terraform Validate
     needs: secret_detection
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./common-infrastructure-setup
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -56,6 +59,9 @@ jobs:
     name: Terraform Plan
     needs: terraform_validate
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./common-infrastructure-setup
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -84,6 +90,9 @@ jobs:
     name: terraform_apply
     needs: terraform_plan
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./common-infrastructure-setup
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
