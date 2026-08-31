@@ -8,5 +8,5 @@
    variable "github_repo_name" {
     type = string
     description = "holds the repo name (temporary setup)"
-    default = "geethanjalimgangisetty-rgb/aws-event-driven-ecommerce-architecture"
+    default = "geethanjalimgangisetty-rgb@320882002/aws-event-driven-ecommerce-architecture@1346136516"
    }
