@@ -1,90 +1,90 @@
-# this is a GitHub Actions workflow file for deploying Terraform configurations for a payment processor application.
-# it will have four stages: secret_detection, terraform_validate, terraform_plan, and terraform_apply. The secret_detection stage will check for any secrets in the codebase, the terraform_validate stage will validate the Terraform configuration files, the terraform_plan stage will create an execution plan for the Terraform deployment, and the terraform_apply stage will apply the changes to the infrastructure. 
-
+# GitHub Actions workflow file for deploying Terraform configurations
 name: payment-processor-terraform-deployment-pipeline
+
 on:
   push:
     branches: [main]
     paths:
-      - 'common-infrastructure-setup/**'    # pipeline is initiated for terraform code changes.
+      - 'common-infrastructure-setup/**'
   pull_request:
     branches: [main]
-    paths:  
+    paths:
       - 'common-infrastructure-setup/**'
+
+# Top-level default permissions
 permissions:
-  contents: read      # grants the github runner to read the contents of the repository
-  id-token: write     # grants the github runner to request an OIDC token for authentication with AWS
+  contents: read
+  id-token: write
 
 jobs:
   secret_detection:
     name: Secret Detection
     runs-on: ubuntu-latest
     steps:
-    # load the code from repository to the github runner
       - name: Checkout code
-        uses: actions/checkout@v3  
+        uses: actions/checkout@v3
 
-    # run gitleaks to detect secrets in the codebase
       - name: Run Gitleaks for secret detection
         uses: gitleaks/gitleaks-action@v2
-        env: 
-          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
   terraform_validate:
- # perform terraform Init, validate and format checks in terraform code before creating the execution plan for the deployment.
     name: Terraform Validate
     needs: secret_detection
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write   # Explicitly set at job level
     defaults:
       run:
         working-directory: ./common-infrastructure-setup
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/${{ secrets.AWS_ROLE_NAME }} 
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/${{ secrets.AWS_ROLE_NAME }}
           aws-region: ${{ secrets.AWS_REGION }}
           audience: sts.amazonaws.com
-      - name: Debug OIDC Token
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const id_token = await core.getIDToken();
-            // Splitting the token inserts a space so GitHub logs don't accidentally mask it
-            console.log("Raw ID Token: " + id_token.match(/.{1,40}/g).join(' '));
 
       - name: Set up Terraform
         uses: hashicorp/setup-terraform@v3
         with:
-          terraform_version: 1.7.5  # Specify the desired version of Terraform
+          terraform_version: 1.7.5
 
       - name: Terraform Init
-        run: terraform init 
+        run: terraform init
 
       - name: Terraform Validate
-        run: terraform validate 
+        run: terraform validate
 
-      - name: terraform format
-        run: terraform fmt -recursive 
+      - name: Terraform Format Check
+        run: terraform fmt -check -recursive
 
   terraform_plan:
     name: Terraform Plan
     needs: terraform_validate
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write   # Explicitly set at job level
     defaults:
       run:
         working-directory: ./common-infrastructure-setup
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-    # authenticate the github runner with AWS using OIDC token and assume the role created for github actions in AWS account.
+
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/${{ secrets.AWS_ROLE_NAME }} #todo
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/${{ secrets.AWS_ROLE_NAME }}
           aws-region: ${{ secrets.AWS_REGION }}
           audience: sts.amazonaws.com
+
       - name: Set up Terraform
         uses: hashicorp/setup-terraform@v3
         with:
@@ -92,7 +92,7 @@ jobs:
 
       - name: Terraform Plan
         run: terraform plan -out=tfplan
-       # Archive the plan file safely for the deploy stage
+
       - name: Upload Plan Artifact
         uses: actions/upload-artifact@v4
         with:
@@ -100,9 +100,12 @@ jobs:
           path: common-infrastructure-setup/tfplan
 
   terraform_apply:
-    name: terraform_apply
+    name: Terraform Apply
     needs: terraform_plan
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write   # Explicitly set at job level
     defaults:
       run:
         working-directory: ./common-infrastructure-setup
@@ -113,9 +116,10 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/${{ secrets.AWS_ROLE_NAME }} #todo
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/${{ secrets.AWS_ROLE_NAME }}
           aws-region: ${{ secrets.AWS_REGION }}
           audience: sts.amazonaws.com
+
       - name: Set up Terraform
         uses: hashicorp/setup-terraform@v3
         with:
@@ -125,8 +129,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: tf-plan-file
-          path: common-infrastructure-setup/tfplan
+          path: common-infrastructure-setup/
 
       - name: Terraform Apply
         run: terraform apply -input=false tfplan
-
