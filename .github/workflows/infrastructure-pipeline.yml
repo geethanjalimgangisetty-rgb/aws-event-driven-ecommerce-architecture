@@ -48,8 +48,18 @@ jobs:
           role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/${{ secrets.AWS_ROLE_NAME }}
           aws-region: ${{ secrets.AWS_REGION }}
           audience: sts.amazonaws.com
-          role-skip-session-tagging: true
+      - name: Debug AWS STS AssumeRole Directly
+        run: |
+          # 1. Fetch raw OIDC JWT token dynamically inside the runner
+          OIDC_TOKEN=$(curl -s -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+            "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=sts.amazonaws.com" | jq -r '.value')
 
+          # 2. Execute raw AWS STS API call to capture the underlying error response
+          aws sts assume-role-with-web-identity \
+            --role-arn "arn:aws:iam::811106941006:role/${{ secrets.AWS_ROLE_NAME }}" \
+            --role-session-name "DebugSession" \
+            --web-identity-token "$OIDC_TOKEN" \
+            --duration-seconds 900
       - name: Set up Terraform
         uses: hashicorp/setup-terraform@v3
         with:
