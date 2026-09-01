@@ -42,14 +42,14 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-      - name: Print Decoded OIDC Claims
+      - name: Inspect Decoded OIDC Claims
         run: |
-          # Fetch the token payload
+          # Request OIDC JWT from GitHub runner internal endpoint
           OIDC_TOKEN=$(curl -s -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
             "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=sts.amazonaws.com" | jq -r '.value')
           
-          # Print only the claims payload (JSON body)
-          echo "=== OIDC CLAIMS ==="
+          # Decode only the middle payload segment (base64)
+          echo "=== OIDC CLAIMS PAYLOAD ==="
           echo "$OIDC_TOKEN" | cut -d'.' -f2 | base64 -d 2>/dev/null | jq .
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4

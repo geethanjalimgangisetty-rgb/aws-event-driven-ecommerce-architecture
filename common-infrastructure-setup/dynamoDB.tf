@@ -13,7 +13,6 @@ module "dynamodb_table" {
     
     tags = {
         dataClass = "infrastructure-state"
-        managedBy = "terraform"
     }
 
 }
