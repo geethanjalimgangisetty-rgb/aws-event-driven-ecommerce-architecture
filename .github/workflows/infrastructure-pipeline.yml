@@ -39,12 +39,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/${{ secrets.AWS_ROLE_NAME }}
-          aws-region: ${{ secrets.AWS_REGION }}
-          audience: sts.amazonaws.com
       - name: Direct AWS CLI OIDC Test
         run: |
           # 1. Obtain raw JWT token from GitHub's OIDC provider
@@ -61,7 +55,13 @@ jobs:
             --role-arn "arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/${{ secrets.AWS_ROLE_NAME }}" \
             --role-session-name "GitHubActionsDirectTest" \
             --web-identity-token "$OIDC_TOKEN" \
-            --duration-seconds 900
+            --duration-seconds 900                
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::811106941006:role/github_runner_access_role-de0b760cd9c6a385611547ce50
+          aws-region: ${{ secrets.AWS_REGION }}
+          audience: sts.amazonaws.com
       - name: Set up Terraform
         uses: hashicorp/setup-terraform@v3
         with:
