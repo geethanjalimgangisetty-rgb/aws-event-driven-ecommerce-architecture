@@ -48,16 +48,22 @@ jobs:
           role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/${{ secrets.AWS_ROLE_NAME }}
           aws-region: ${{ secrets.AWS_REGION }}
           audience: sts.amazonaws.com
-      - name: Debug Raw AWS STS Error
+          role-skip-session-tagging: true
+      - name: Direct AWS CLI OIDC Test
         run: |
-          # 1. Fetch raw OIDC JWT token dynamically inside the runner
+          # 1. Obtain raw JWT token from GitHub's OIDC provider
           OIDC_TOKEN=$(curl -s -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
             "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=sts.amazonaws.com" | jq -r '.value')
 
-          # 2. Directly invoke STS via CLI to print the explicit AWS API Denial message
+          # 2. Print decoded OIDC claims (sub, aud, iss) to check exact values
+          echo "=== DECODED JWT CLAIMS ==="
+          echo "$OIDC_TOKEN" | cut -d'.' -f2 | base64 -d 2>/dev/null | jq '{sub, aud, iss}'
+
+          # 3. Directly call AWS STS via CLI to reveal the true underlying error message
+          echo "=== DIRECT AWS STS RESPONSES ==="
           aws sts assume-role-with-web-identity \
-            --role-arn "arn:aws:iam::811106941006:role/${{ secrets.AWS_ROLE_NAME }}" \
-            --role-session-name "DebugSession" \
+            --role-arn "arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/${{ secrets.AWS_ROLE_NAME }}" \
+            --role-session-name "GitHubActionsDirectTest" \
             --web-identity-token "$OIDC_TOKEN" \
             --duration-seconds 900
       - name: Set up Terraform
