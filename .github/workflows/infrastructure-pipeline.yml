@@ -48,13 +48,13 @@ jobs:
           role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/${{ secrets.AWS_ROLE_NAME }}
           aws-region: ${{ secrets.AWS_REGION }}
           audience: sts.amazonaws.com
-      - name: Debug AWS STS AssumeRole Directly
+      - name: Debug Raw AWS STS Error
         run: |
           # 1. Fetch raw OIDC JWT token dynamically inside the runner
           OIDC_TOKEN=$(curl -s -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
             "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=sts.amazonaws.com" | jq -r '.value')
 
-          # 2. Execute raw AWS STS API call to capture the underlying error response
+          # 2. Directly invoke STS via CLI to print the explicit AWS API Denial message
           aws sts assume-role-with-web-identity \
             --role-arn "arn:aws:iam::811106941006:role/${{ secrets.AWS_ROLE_NAME }}" \
             --role-session-name "DebugSession" \
