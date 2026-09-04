@@ -44,6 +44,6 @@ module "iam_role" {
   }
 
   tags = {
-    dataClass = "infrastructure-pipeline"
+    dataClass = "infrastructure-pipeline-role"
   }
 }

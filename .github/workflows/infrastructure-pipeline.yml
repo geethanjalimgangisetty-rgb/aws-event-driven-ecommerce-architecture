@@ -39,7 +39,7 @@ jobs:
         working-directory: ./common-infrastructure-setup
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -48,7 +48,7 @@ jobs:
           audience: sts.amazonaws.com
 
       - name: Set up Terraform
-        uses: hashicorp/setup-terraform@v3
+        uses: hashicorp/setup-terraform@v4
         with:
           terraform_version: 1.7.5
 
@@ -82,7 +82,7 @@ jobs:
           audience: sts.amazonaws.com
 
       - name: Set up Terraform
-        uses: hashicorp/setup-terraform@v3
+        uses: hashicorp/setup-terraform@v4
         with:
           terraform_version: 1.7.5
 
@@ -107,7 +107,7 @@ jobs:
         working-directory: ./common-infrastructure-setup
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
