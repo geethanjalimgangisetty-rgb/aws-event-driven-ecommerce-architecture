@@ -10,8 +10,8 @@ module "iam_policy" {
     Version = "2012-10-17"
     Statement = [
       {
-        Effect   = "Allow"
-        Action   = [
+        Effect = "Allow"
+        Action = [
           "s3:*",
           "dynamodb:*"
         ]
@@ -34,7 +34,7 @@ module "iam_role" {
   description = "This role is created for the github runner to access aws for deployment"
 
   # Enforces GitHub OIDC Trust Policy construction
-  enable_github_oidc     = true
+  enable_github_oidc = true
   oidc_wildcard_subjects = [
     "repo:${var.github_repo_name}:*"
   ]
