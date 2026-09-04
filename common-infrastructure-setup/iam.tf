@@ -15,7 +15,10 @@ module "iam_policy" {
           "s3:*",
           "dynamodb:*"
         ]
-        Resource = "*"
+        Resource = [
+          "arn:aws:s3:::${var.s3_bucket_name}",
+          "arn:aws:dynamodb:${var.aws_region}:${var.account}:table/${var.dynamo_table}"
+        ]
       }
     ]
   })

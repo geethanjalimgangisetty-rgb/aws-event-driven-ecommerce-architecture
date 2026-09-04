@@ -94,7 +94,8 @@ jobs:
         uses: hashicorp/setup-terraform@v4
         with:
           terraform_version: 1.7.5
-
+      - name: Terraform Init
+        run: terraform init -input=false
       - name: Terraform Plan
         run: terraform plan -out=tfplan
 
