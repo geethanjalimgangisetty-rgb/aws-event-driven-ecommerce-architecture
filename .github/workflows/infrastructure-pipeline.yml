@@ -52,8 +52,17 @@ jobs:
         with:
           terraform_version: 1.7.5
 
+      - name: Cache Terraform Plugins #caching the terraform providers to speed up the workflow
+        uses: actions/cache@v4
+        with:
+          path: |
+            ./common-infrastructure-setup/.terraform/providers
+            ~/.terraform.d/plugin-cache
+          key: ${{ runner.os }}-terraform-${{ hashFiles('common-infrastructure-setup/.terraform.lock.hcl') }}
+          restore-keys: |
+            ${{ runner.os }}-terraform-
       - name: Terraform Init
-        run: terraform init
+        run: terraform init -input=false
 
       - name: Terraform Validate
         run: terraform validate
