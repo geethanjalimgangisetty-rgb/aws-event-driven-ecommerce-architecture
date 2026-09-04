@@ -36,8 +36,8 @@ module "iam_role" {
   # Enforces GitHub OIDC Trust Policy construction
   enable_github_oidc     = true
   oidc_wildcard_subjects = [
-    "repo:geethanjalimgangisetty-rgb*:aws-event-driven-ecommerce-architecture*:*"
-     ]
+    "repo:${var.github_repo_name}:*"
+  ]
   # Attach custom policy as a map
   policies = {
     github_runner_policy = module.iam_policy.arn

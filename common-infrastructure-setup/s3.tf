@@ -1,7 +1,7 @@
 module "s3" {
     source = "terraform-aws-modules/s3-bucket/aws"
     version = "= 4.6.0"
-    bucket = "payment-processor-backend-state-bucket"
+    bucket = "payment-processor-app-backend-state-bucket"
     versioning = {
         enabled = true
     }

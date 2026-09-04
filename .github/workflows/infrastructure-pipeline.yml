@@ -73,21 +73,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      - name: Trace Low-Level AWS STS Response
-        run: |
-          # 1. Obtain OIDC JWT token dynamically from GitHub Runner internal endpoint
-          OIDC_TOKEN=$(curl -s -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
-            "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=sts.amazonaws.com" | jq -r '.value')
-
-          echo "=== EXECUTING AWS STS CALL WITH FULL TRACING ==="
-          
-          # 2. Call AWS STS directly in debug mode to display full HTTP request/response details
-          aws sts assume-role-with-web-identity \
-            --role-arn "arn:aws:iam::811106941006:role/${{ secrets.AWS_ROLE_NAME }}" \
-            --role-session-name "DebugSession" \
-            --web-identity-token "$OIDC_TOKEN" \
-            --duration-seconds 900 \
-            --debug 2>&1 | grep -E "(HTTP/1.1|Response Body|Exception|Error|sts.amazonaws.com)"
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
